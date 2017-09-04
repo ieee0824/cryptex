@@ -2,12 +2,11 @@ package cryptex
 
 import (
 	"encoding/json"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/ieee0824/cryptex/kms"
+	"github.com/ieee0824/cryptex/encryptor"
+	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
-	"io/ioutil"
 )
 
 func getEditor() string {
@@ -28,15 +27,14 @@ type V struct {
 
 type Cryptex struct {
 	msg map[string]interface{}
-	kms *kms.KMS
+	e   encryptor.Encryptor
 }
 
-func New(m map[string]interface{}, sess *session.Session, keyID string) *Cryptex {
+func New(m map[string]interface{}, e encryptor.Encryptor) *Cryptex {
 	c := &Cryptex{
 		msg: m,
-		kms: kms.New(sess),
+		e:   e,
 	}
-	c.kms.SetKey(keyID)
 	return c
 }
 
@@ -51,7 +49,7 @@ func (c *Cryptex) encrypt(obj interface{}) (interface{}, error) {
 			return nil, err
 		}
 
-		result, err := c.kms.Encrypt(bin)
+		result, err := c.e.Encrypt(bin)
 		if err != nil {
 			return nil, err
 		}
@@ -73,7 +71,7 @@ func (c *Cryptex) encrypt(obj interface{}) (interface{}, error) {
 func (c *Cryptex) decrypt(obj interface{}) (interface{}, error) {
 	m, ok := obj.(map[string]interface{})
 	if !ok {
-		p, err := c.kms.Decrypt(obj.([]byte))
+		p, err := c.e.Decrypt(obj.([]byte))
 		if err != nil {
 			log.Fatalln(err)
 			return nil, err
