@@ -1,5 +1,5 @@
 # cryptex
-encrypt json, only value.
+encrypt map, only value.
 
 # Example
 
