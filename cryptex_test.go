@@ -1,10 +1,10 @@
 package cryptex
 
 import (
+	"encoding/base64"
+	"github.com/ghodss/yaml"
 	"reflect"
 	"testing"
-	"github.com/ghodss/yaml"
-	"encoding/base64"
 )
 
 func genEncryptedValue(i interface{}) string {
@@ -12,8 +12,6 @@ func genEncryptedValue(i interface{}) string {
 	for i, b := range bin {
 		bin[i] = b + 1
 	}
-
-
 
 	return base64.StdEncoding.EncodeToString(bin)
 }
