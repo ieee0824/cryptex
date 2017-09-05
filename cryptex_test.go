@@ -1,18 +1,21 @@
 package cryptex
 
 import (
-	"encoding/json"
 	"reflect"
 	"testing"
+	"github.com/ghodss/yaml"
+	"encoding/base64"
 )
 
-func genEncryptedValue(i interface{}) []byte {
-	bin, _ := json.Marshal(V{i})
+func genEncryptedValue(i interface{}) string {
+	bin, _ := yaml.Marshal(V{i})
 	for i, b := range bin {
 		bin[i] = b + 1
 	}
 
-	return bin
+
+
+	return base64.StdEncoding.EncodeToString(bin)
 }
 
 type testEncrypter struct {
