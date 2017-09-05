@@ -2,13 +2,19 @@ package cryptex
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"github.com/ghodss/yaml"
 	"github.com/ieee0824/cryptex/encryptor"
 	"io/ioutil"
-	"log"
 	"os"
 	"os/exec"
+)
+
+const (
+	JSON = "json"
+	YAML = "yaml"
 )
 
 var (
@@ -68,13 +74,20 @@ type V struct {
 }
 
 type Cryptex struct {
-	e encryptor.Encryptor
+	e          encryptor.Encryptor
+	viewFormat string
 }
 
 func New(e encryptor.Encryptor) *Cryptex {
 	c := &Cryptex{
-		e: e,
+		e:          e,
+		viewFormat: "json",
 	}
+	return c
+}
+
+func (c *Cryptex) SetFormat(format string) *Cryptex {
+	c.viewFormat = format
 	return c
 }
 
@@ -84,7 +97,7 @@ func (c *Cryptex) encrypt(obj interface{}) (interface{}, error) {
 		v := &V{
 			Value: obj,
 		}
-		bin, err := json.Marshal(v)
+		bin, err := yaml.Marshal(v)
 		if err != nil {
 			return nil, err
 		}
@@ -94,7 +107,9 @@ func (c *Cryptex) encrypt(obj interface{}) (interface{}, error) {
 			return nil, err
 		}
 
-		return result, nil
+		encoded := base64.StdEncoding.EncodeToString(result)
+
+		return encoded, nil
 
 	}
 
@@ -111,15 +126,19 @@ func (c *Cryptex) encrypt(obj interface{}) (interface{}, error) {
 func (c *Cryptex) decrypt(obj interface{}) (interface{}, error) {
 	m, ok := obj.(map[string]interface{})
 	if !ok {
-		p, err := c.e.Decrypt(obj.([]byte))
+		decoded, err := base64.StdEncoding.DecodeString(obj.(string))
 		if err != nil {
-			log.Fatalln(err)
+			return nil, err
+		}
+
+		p, err := c.e.Decrypt(decoded)
+		if err != nil {
 			return nil, err
 		}
 
 		v := V{}
 
-		if err := json.Unmarshal(p, &v); err != nil {
+		if err := yaml.Unmarshal(p, &v); err != nil {
 			return nil, err
 		}
 
@@ -158,9 +177,20 @@ func (c *Cryptex) Edit(i interface{}) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	bin, err := json.MarshalIndent(p, "", "    ")
-	if err != nil {
-		return nil, err
+
+	var bin []byte
+	if c.viewFormat == "yaml" {
+		var err error
+		bin, err = yaml.Marshal(p)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		var err error
+		bin, err = json.MarshalIndent(p, "", "    ")
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	file, err := ioutil.TempFile(os.TempDir(), "cryptex")
@@ -188,7 +218,7 @@ func (c *Cryptex) Edit(i interface{}) (interface{}, error) {
 
 	m := map[string]interface{}{}
 
-	if err := json.Unmarshal(pbin, &m); err != nil {
+	if err := yaml.Unmarshal(pbin, &m); err != nil {
 		return nil, err
 	}
 
@@ -209,9 +239,20 @@ func (c *Cryptex) View(i interface{}) error {
 	if err != nil {
 		return err
 	}
-	bin, err := json.MarshalIndent(p, "", "    ")
-	if err != nil {
-		return err
+
+	var bin []byte
+	if c.viewFormat == "yaml" {
+		var err error
+		bin, err = yaml.Marshal(p)
+		if err != nil {
+			return err
+		}
+	} else {
+		var err error
+		bin, err = json.MarshalIndent(p, "", "    ")
+		if err != nil {
+			return err
+		}
 	}
 
 	cmd := exec.Command(pager)
