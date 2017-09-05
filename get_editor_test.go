@@ -1,8 +1,8 @@
 package cryptex
 
 import (
-	"testing"
 	"os"
+	"testing"
 )
 
 func TestGetEditorEnvPnzrEditor(t *testing.T) {
@@ -74,4 +74,3 @@ func TestGetEditorNoEnv(t *testing.T) {
 	}
 
 }
-

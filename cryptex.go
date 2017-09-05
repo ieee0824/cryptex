@@ -26,12 +26,12 @@ type V struct {
 }
 
 type Cryptex struct {
-	e   encryptor.Encryptor
+	e encryptor.Encryptor
 }
 
 func New(e encryptor.Encryptor) *Cryptex {
 	c := &Cryptex{
-		e:   e,
+		e: e,
 	}
 	return c
 }
