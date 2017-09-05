@@ -7,10 +7,6 @@ jobs:
         steps:
             - checkout
             - run:
-                name: install packages
-                command: |
-                    glide i
-            - run:
                 name: check fmt
                 command: |
                     if [ $(go fmt $(glide nv) | wc -l) -eq 0 ]; then
@@ -18,6 +14,10 @@ jobs:
                     fi
                     echo "Go fmt is not applied."
                     exit 1
+            - run:
+                name: install packages
+                command: |
+                    glide i
             - run:
                 name: run test
                 command: |
