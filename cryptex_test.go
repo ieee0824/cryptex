@@ -1,12 +1,12 @@
 package cryptex
 
 import (
-	"testing"
-	"reflect"
 	"encoding/json"
+	"reflect"
+	"testing"
 )
 
-func genEncryptedValue(i interface{})[]byte{
+func genEncryptedValue(i interface{}) []byte {
 	bin, _ := json.Marshal(V{i})
 	for i, b := range bin {
 		bin[i] = b + 1
@@ -43,15 +43,15 @@ func TestNew(t *testing.T) {
 }
 
 func TestCryptex_Encrypt(t *testing.T) {
-	tests := []struct{
+	tests := []struct {
 		input map[string]interface{}
-		want map[string]interface{}
-		err bool
+		want  map[string]interface{}
+		err   bool
 	}{
 		{
 			input: map[string]interface{}{},
-			want: map[string]interface{}{},
-			err: false,
+			want:  map[string]interface{}{},
+			err:   false,
 		},
 		{
 			input: map[string]interface{}{
@@ -65,22 +65,22 @@ func TestCryptex_Encrypt(t *testing.T) {
 		{
 			input: map[string]interface{}{
 				"hoge": 1,
-				"foo": "bar",
-				"map": map[string]interface{}{},
+				"foo":  "bar",
+				"map":  map[string]interface{}{},
 			},
 			want: map[string]interface{}{
 				"hoge": genEncryptedValue(1),
-				"foo": genEncryptedValue("bar"),
-				"map": map[string]interface{}{},
+				"foo":  genEncryptedValue("bar"),
+				"map":  map[string]interface{}{},
 			},
 			err: false,
 		},
 		{
 			input: map[string]interface{}{
 				"hoge": 1,
-				"foo": "bar",
+				"foo":  "bar",
 				"map": map[string]interface{}{
-					"john": "doe",
+					"john":  "doe",
 					"float": 1.1,
 					"map": map[string]interface{}{
 						"hoge": "huga",
@@ -89,9 +89,9 @@ func TestCryptex_Encrypt(t *testing.T) {
 			},
 			want: map[string]interface{}{
 				"hoge": genEncryptedValue(1),
-				"foo": genEncryptedValue("bar"),
+				"foo":  genEncryptedValue("bar"),
 				"map": map[string]interface{}{
-					"john": genEncryptedValue("doe"),
+					"john":  genEncryptedValue("doe"),
 					"float": genEncryptedValue(1.1),
 					"map": map[string]interface{}{
 						"hoge": genEncryptedValue("huga"),
@@ -117,19 +117,19 @@ func TestCryptex_Encrypt(t *testing.T) {
 }
 
 func TestCryptex_Decrypt(t *testing.T) {
-	tests := []struct{
+	tests := []struct {
 		input map[string]interface{}
-		want map[string]interface{}
-		err bool
+		want  map[string]interface{}
+		err   bool
 	}{
 		{
 			input: map[string]interface{}{},
-			want: map[string]interface{}{},
+			want:  map[string]interface{}{},
 		},
 		{
 			input: map[string]interface{}{
 				"hoge": genEncryptedValue("huga"),
-				"foo": genEncryptedValue(1.1),
+				"foo":  genEncryptedValue(1.1),
 				"map": map[string]interface{}{
 					"map": map[string]interface{}{
 						"float": genEncryptedValue(1.1),
@@ -139,7 +139,7 @@ func TestCryptex_Decrypt(t *testing.T) {
 			},
 			want: map[string]interface{}{
 				"hoge": "huga",
-				"foo": 1.1,
+				"foo":  1.1,
 				"map": map[string]interface{}{
 					"map": map[string]interface{}{
 						"float": 1.1,
