@@ -26,9 +26,9 @@ plainMap := map[string]interface{}{
 	},
 }
 
-c := cryptex.New(plainMap, kmsClient)
+c := cryptex.New(kmsClient)
 
-cipher, err := c.Encrypt()
+cipher, err := c.Encrypt(plainMap)
 if err != nil {
 	panic(err)
 }
