@@ -10,3 +10,7 @@ jobs:
                 name: install packages
                 command: |
                     glide i
+            - run:
+                name: run test
+                command: |
+                    go test $(glide nv)
