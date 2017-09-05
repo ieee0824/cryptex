@@ -1,18 +1,18 @@
 package cryptex
 
 import (
+	"bytes"
 	"encoding/json"
+	"errors"
 	"github.com/ieee0824/cryptex/encryptor"
 	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
-	"errors"
-	"bytes"
 )
 
 var (
-	NonePager = errors.New("none pager")
+	NonePager       = errors.New("none pager")
 	NotFoundCommand = errors.New("not found command")
 )
 
@@ -200,7 +200,7 @@ func (c *Cryptex) Edit(i interface{}) (interface{}, error) {
 	return result, nil
 }
 
-func (c *Cryptex) View(i interface{}) (error) {
+func (c *Cryptex) View(i interface{}) error {
 	pager, err := getPager()
 	if err != nil {
 		return err
