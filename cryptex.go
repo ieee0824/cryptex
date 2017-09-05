@@ -7,10 +7,17 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"errors"
+	"bytes"
+)
+
+var (
+	NonePager = errors.New("none pager")
+	NotFoundCommand = errors.New("not found command")
 )
 
 func getEditor() string {
-	if e := os.Getenv("PNZR_EDITOR"); e != "" {
+	if e := os.Getenv("DEFAULT_EDITOR"); e != "" {
 		return e
 	}
 
@@ -19,6 +26,41 @@ func getEditor() string {
 	}
 
 	return "nano"
+}
+
+func hasCommand(c string) error {
+	cmd := exec.Command("type", c)
+	err := cmd.Run()
+	if err != nil {
+		return NotFoundCommand
+	}
+	return nil
+}
+
+func getPager() (string, error) {
+	if p := os.Getenv("DEFAULT_PAGER"); p != "" {
+		if err := hasCommand(p); err != nil {
+			return "", err
+		}
+		return p, nil
+	}
+
+	if p := os.Getenv("PAGER"); p != "" {
+		if err := hasCommand(p); err != nil {
+			return "", err
+		}
+		return p, nil
+	}
+
+	if hasCommand("less") == nil {
+		return "less", nil
+	} else if hasCommand("more") == nil {
+		return "more", nil
+	} else if hasCommand("cat") == nil {
+		return "cat", nil
+	}
+
+	return "", NonePager
 }
 
 type V struct {
@@ -156,4 +198,30 @@ func (c *Cryptex) Edit(i interface{}) (interface{}, error) {
 	}
 
 	return result, nil
+}
+
+func (c *Cryptex) View(i interface{}) (error) {
+	pager, err := getPager()
+	if err != nil {
+		return err
+	}
+	p, err := c.decrypt(i)
+	if err != nil {
+		return err
+	}
+	bin, err := json.MarshalIndent(p, "", "    ")
+	if err != nil {
+		return err
+	}
+
+	cmd := exec.Command(pager)
+	cmd.Stdin = bytes.NewReader(bin)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	if err := cmd.Run(); err != nil {
+		return err
+	}
+
+	return nil
 }

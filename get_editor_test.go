@@ -6,7 +6,7 @@ import (
 )
 
 func TestGetEditorEnvPnzrEditor(t *testing.T) {
-	os.Unsetenv("PNZR_EDITOR")
+	os.Unsetenv("DEFAULT_EDITOR")
 	os.Unsetenv("EDITOR")
 	tests := []struct {
 		in   string
@@ -19,11 +19,11 @@ func TestGetEditorEnvPnzrEditor(t *testing.T) {
 	for _, test := range tests {
 		func() {
 			defer func() {
-				os.Unsetenv("PNZR_EDITOR")
+				os.Unsetenv("DEFAULT_EDITOR")
 				os.Unsetenv("EDITOR")
 			}()
 
-			os.Setenv("PNZR_EDITOR", test.in)
+			os.Setenv("DEFAULT_EDITOR", test.in)
 
 			got := getEditor()
 
@@ -35,7 +35,7 @@ func TestGetEditorEnvPnzrEditor(t *testing.T) {
 }
 
 func TestGetEditorEnvEditor(t *testing.T) {
-	os.Unsetenv("PNZR_EDITOR")
+	os.Unsetenv("DEFAULT_EDITOR")
 	os.Unsetenv("EDITOR")
 	tests := []struct {
 		in   string
@@ -48,7 +48,7 @@ func TestGetEditorEnvEditor(t *testing.T) {
 	for _, test := range tests {
 		func() {
 			defer func() {
-				os.Unsetenv("PNZR_EDITOR")
+				os.Unsetenv("DEFAULT_EDITOR")
 				os.Unsetenv("EDITOR")
 			}()
 
@@ -64,7 +64,7 @@ func TestGetEditorEnvEditor(t *testing.T) {
 }
 
 func TestGetEditorNoEnv(t *testing.T) {
-	os.Unsetenv("PNZR_EDITOR")
+	os.Unsetenv("DEFAULT_EDITOR")
 	os.Unsetenv("EDITOR")
 
 	got := getEditor()
