@@ -26,13 +26,11 @@ type V struct {
 }
 
 type Cryptex struct {
-	msg map[string]interface{}
 	e   encryptor.Encryptor
 }
 
-func New(m map[string]interface{}, e encryptor.Encryptor) *Cryptex {
+func New(e encryptor.Encryptor) *Cryptex {
 	c := &Cryptex{
-		msg: m,
 		e:   e,
 	}
 	return c
@@ -96,8 +94,8 @@ func (c *Cryptex) decrypt(obj interface{}) (interface{}, error) {
 	return obj, nil
 }
 
-func (c *Cryptex) Encrypt() (interface{}, error) {
-	o, err := c.encrypt(c.msg)
+func (c *Cryptex) Encrypt(i interface{}) (interface{}, error) {
+	o, err := c.encrypt(i)
 	if err != nil {
 		return nil, err
 	}
