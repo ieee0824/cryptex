@@ -7,3 +7,5 @@ import:
   - aws/session
   - service/kms
   - service/kms/kmsiface
+- package: github.com/ghodss/yaml
+  version: ^1.0.0
