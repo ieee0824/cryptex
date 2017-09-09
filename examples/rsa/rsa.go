@@ -1,12 +1,12 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
+	"github.com/ieee0824/cryptex"
 	"github.com/ieee0824/cryptex/rsa"
 	"io/ioutil"
 	"log"
-	"github.com/ieee0824/cryptex"
-	"fmt"
-	"encoding/json"
 )
 
 func main() {
