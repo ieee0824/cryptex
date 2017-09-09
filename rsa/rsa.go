@@ -11,11 +11,9 @@ import (
 )
 
 var (
-	NotPemEncodeErr   = errors.New("not PEM-encoded")
-	UnknownKeyTypeErr = errors.New("Unknown key type error")
-	BadPrivateKeyErr  = errors.New("bad private key")
-	InvalidPubKeyErr  = errors.New("invalid public key data")
-	BadPublicKeyErr   = errors.New("not RSA public key")
+	BadPrivateKeyErr = errors.New("bad private key")
+	InvalidPubKeyErr = errors.New("invalid public key data")
+	BadPublicKeyErr  = errors.New("not RSA public key")
 )
 
 func decodePrivateKey(key []byte) (*rsa.PrivateKey, error) {
@@ -60,6 +58,7 @@ func decodePublicKey(key []byte) (*rsa.PublicKey, error) {
 type RSA struct {
 	privateKey []byte
 	publicKey  []byte
+	label      string
 }
 
 func New(pri, pub []byte) *RSA {
@@ -69,13 +68,18 @@ func New(pri, pub []byte) *RSA {
 	}
 }
 
+func (r *RSA) SetLabel(l string) *RSA {
+	r.label = l
+	return r
+}
+
 func (r *RSA) Encrypt(p []byte) ([]byte, error) {
 	pubkey, err := decodePublicKey(r.publicKey)
 	if err != nil {
 		return nil, err
 	}
 
-	out, err := rsa.EncryptOAEP(sha512.New(), rand.Reader, pubkey, p, []byte(""))
+	out, err := rsa.EncryptOAEP(sha512.New(), rand.Reader, pubkey, p, []byte(r.label))
 	if err != nil {
 		return nil, err
 	}
@@ -88,7 +92,7 @@ func (r *RSA) Decrypt(c []byte) ([]byte, error) {
 		return nil, err
 	}
 
-	out, err := rsa.DecryptOAEP(sha512.New(), rand.Reader, priKey, c, []byte(""))
+	out, err := rsa.DecryptOAEP(sha512.New(), rand.Reader, priKey, c, []byte(r.label))
 	if err != nil {
 		return nil, err
 	}
