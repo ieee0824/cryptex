@@ -8,7 +8,6 @@ import (
 	"crypto/sha512"
 	"errors"
 	"crypto/rand"
-	"crypto/sha1"
 )
 
 var (
@@ -18,6 +17,23 @@ var (
 	InvalidPubKeyErr = errors.New("invalid public key data")
 	BadPublicKeyErr = errors.New("not RSA public key")
 )
+
+func decodePrivateKey(key []byte) (*rsa.PrivateKey, error) {
+	privateKeyBlock, _ := pem.Decode(key)
+	if privateKeyBlock == nil {
+		return nil, BadPrivateKeyErr
+	}
+	if privateKeyBlock.Type != "RSA PRIVATE KEY" {
+		return nil, BadPrivateKeyErr
+	}
+
+	privateKey, err := x509.ParsePKCS1PrivateKey(privateKeyBlock.Bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	return privateKey, err
+}
 
 func decodePublicKey(key []byte) (*rsa.PublicKey, error) {
 	publicKeyBlock, _ := pem.Decode(key)
@@ -67,19 +83,12 @@ func (r *RSA) Encrypt(p []byte) ([]byte, error) {
 }
 
 func (r *RSA) Decrypt(c []byte) ([]byte, error) {
-block, _ := pem.Decode(r.privateKey)
-	if block == nil {
-		return nil, NotPemEncodeErr
-	}
-	got, want := block.Type, "RSA PRIVATE KEY"
-	if  got != want {
-		return nil, errors.New(fmt.Sprintf("%v: %q, want: %q", UnknownKeyTypeErr.Error(), got, want))
-	}
-	priv, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+	priKey, err := decodePrivateKey(r.privateKey)
 	if err != nil {
-		return nil, BadPrivateKeyErr
+		return nil, err
 	}
-	out, err := rsa.DecryptOAEP(sha1.New(), rand.Reader, priv, c, []byte(""))
+
+	out, err := rsa.DecryptOAEP(sha512.New(), rand.Reader, priKey, c, []byte(""))
 	if err != nil {
 		return nil, err
 	}
