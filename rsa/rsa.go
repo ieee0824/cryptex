@@ -1,21 +1,21 @@
 package rsa
 
 import (
-	"encoding/pem"
-	"fmt"
-	"crypto/x509"
+	"crypto/rand"
 	"crypto/rsa"
 	"crypto/sha512"
+	"crypto/x509"
+	"encoding/pem"
 	"errors"
-	"crypto/rand"
+	"fmt"
 )
 
 var (
-	NotPemEncodeErr = errors.New("not PEM-encoded")
+	NotPemEncodeErr   = errors.New("not PEM-encoded")
 	UnknownKeyTypeErr = errors.New("Unknown key type error")
-	BadPrivateKeyErr = errors.New("bad private key")
-	InvalidPubKeyErr = errors.New("invalid public key data")
-	BadPublicKeyErr = errors.New("not RSA public key")
+	BadPrivateKeyErr  = errors.New("bad private key")
+	InvalidPubKeyErr  = errors.New("invalid public key data")
+	BadPublicKeyErr   = errors.New("not RSA public key")
 )
 
 func decodePrivateKey(key []byte) (*rsa.PrivateKey, error) {
@@ -38,7 +38,7 @@ func decodePrivateKey(key []byte) (*rsa.PrivateKey, error) {
 func decodePublicKey(key []byte) (*rsa.PublicKey, error) {
 	publicKeyBlock, _ := pem.Decode(key)
 	if publicKeyBlock == nil {
-		return nil,InvalidPubKeyErr
+		return nil, InvalidPubKeyErr
 	}
 	if publicKeyBlock.Type != "PUBLIC KEY" {
 		return nil, errors.New(fmt.Sprintf("invalid public key type : %s", publicKeyBlock.Type))
@@ -59,13 +59,13 @@ func decodePublicKey(key []byte) (*rsa.PublicKey, error) {
 
 type RSA struct {
 	privateKey []byte
-	publicKey []byte
+	publicKey  []byte
 }
 
 func New(pri, pub []byte) *RSA {
 	return &RSA{
 		privateKey: pri,
-		publicKey: pub,
+		publicKey:  pub,
 	}
 }
 
