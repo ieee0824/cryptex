@@ -22,12 +22,23 @@ var (
 	NotFoundCommand = errors.New("not found command")
 )
 
+var (
+	EDITOR string
+)
+
 type Container struct {
 	EncryptionType string      `json:"encryption_type"`
 	Values         interface{} `json:"values"`
 }
 
+func SetEditor(e string) {
+	EDITOR = e
+}
+
 func getEditor() string {
+	if EDITOR != "" {
+		return EDITOR
+	}
 	if e := os.Getenv("DEFAULT_EDITOR"); e != "" {
 		return e
 	}
