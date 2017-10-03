@@ -22,6 +22,11 @@ var (
 	NotFoundCommand = errors.New("not found command")
 )
 
+type Container struct {
+	EncryptionType string      `json:"encryption_type"`
+	Values         interface{} `json:"values"`
+}
+
 func getEditor() string {
 	if e := os.Getenv("DEFAULT_EDITOR"); e != "" {
 		return e
@@ -155,16 +160,20 @@ func (c *Cryptex) decrypt(obj interface{}) (interface{}, error) {
 	return obj, nil
 }
 
-func (c *Cryptex) Encrypt(i interface{}) (interface{}, error) {
+func (c *Cryptex) Encrypt(i interface{}) (*Container, error) {
+	ret := &Container{
+		EncryptionType: c.e.EncryptionType(),
+	}
 	o, err := c.encrypt(i)
 	if err != nil {
 		return nil, err
 	}
-	return o, nil
+	ret.Values = o
+	return ret, nil
 }
 
-func (c *Cryptex) Decrypt(d interface{}) (interface{}, error) {
-	o, err := c.decrypt(d)
+func (c *Cryptex) Decrypt(d *Container) (interface{}, error) {
+	o, err := c.decrypt(d.Values)
 	if err != nil {
 		return nil, err
 	}
@@ -172,8 +181,8 @@ func (c *Cryptex) Decrypt(d interface{}) (interface{}, error) {
 	return o, nil
 }
 
-func (c *Cryptex) Edit(i interface{}) (interface{}, error) {
-	p, err := c.decrypt(i)
+func (c *Cryptex) Edit(i *Container) (interface{}, error) {
+	p, err := c.decrypt(i.Values)
 	if err != nil {
 		return nil, err
 	}
@@ -227,15 +236,18 @@ func (c *Cryptex) Edit(i interface{}) (interface{}, error) {
 		return nil, err
 	}
 
-	return result, nil
+	i.EncryptionType = c.e.EncryptionType()
+	i.Values = result
+
+	return i, nil
 }
 
-func (c *Cryptex) View(i interface{}) error {
+func (c *Cryptex) View(i *Container) error {
 	pager, err := getPager()
 	if err != nil {
 		return err
 	}
-	p, err := c.decrypt(i)
+	p, err := c.decrypt(i.Values)
 	if err != nil {
 		return err
 	}

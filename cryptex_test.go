@@ -19,6 +19,10 @@ func genEncryptedValue(i interface{}) string {
 type testEncrypter struct {
 }
 
+func (t *testEncrypter) EncryptionType() string {
+	return "test"
+}
+
 func (t *testEncrypter) Encrypt(d []byte) ([]byte, error) {
 	for i, v := range d {
 		d[i] = v + 1
@@ -111,7 +115,7 @@ func TestCryptex_Encrypt(t *testing.T) {
 		if test.err && err == nil {
 			t.Fatalf("should be error for %v but not:", test.input)
 		}
-		if !reflect.DeepEqual(got, test.want) {
+		if !reflect.DeepEqual(got.Values, test.want) {
 			t.Fatalf("want %q, but %q:", test.want, got)
 		}
 	}
@@ -152,7 +156,7 @@ func TestCryptex_Decrypt(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		got, err := New(&testEncrypter{}).Decrypt(test.input)
+		got, err := New(&testEncrypter{}).Decrypt(&Container{Values: test.input})
 		if !test.err && err != nil {
 			t.Fatalf("should not be error for %v but: %v", test.input, err)
 		}

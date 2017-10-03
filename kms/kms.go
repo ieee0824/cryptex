@@ -15,6 +15,10 @@ func New(sess *session.Session) *KMS {
 	return &KMS{svc: kms.New(sess)}
 }
 
+func (k *KMS) EncryptionType() string {
+	return "kms"
+}
+
 func (k *KMS) SetKey(key string) *KMS {
 	k.keyID = &key
 

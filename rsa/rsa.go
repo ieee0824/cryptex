@@ -68,6 +68,10 @@ func New(pri, pub []byte) *RSA {
 	}
 }
 
+func (r *RSA) EncryptionType() string {
+	return "rsa"
+}
+
 func (r *RSA) SetLabel(l string) *RSA {
 	r.label = l
 	return r
