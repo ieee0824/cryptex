@@ -4,13 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/ieee0824/cryptex"
 	"github.com/ieee0824/cryptex/kms"
-	"github.com/joho/godotenv"
 	"github.com/ieee0824/getenv"
-	"github.com/aws/aws-sdk-go/aws"
+	"github.com/joho/godotenv"
 )
 
 var (
