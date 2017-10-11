@@ -123,10 +123,15 @@ func TestCryptex_Encrypt(t *testing.T) {
 
 func TestCryptex_Decrypt(t *testing.T) {
 	tests := []struct {
-		input map[string]interface{}
+		input interface{}
 		want  map[string]interface{}
 		err   bool
 	}{
+		{
+			nil,
+			nil,
+			true,
+		},
 		{
 			input: map[string]interface{}{},
 			want:  map[string]interface{}{},
@@ -154,16 +159,22 @@ func TestCryptex_Decrypt(t *testing.T) {
 			},
 		},
 	}
-
 	for _, test := range tests {
-		got, err := New(&testEncrypter{}).Decrypt(&Container{Values: test.input})
+		got, err := New(&testEncrypter{}).Decrypt(func(i interface{})*Container{
+			if i == nil {
+				return nil
+			}
+			return &Container{
+				Values: i,
+			}
+		}(test.input))
 		if !test.err && err != nil {
 			t.Fatalf("should not be error for %v but: %v", test.input, err)
 		}
 		if test.err && err == nil {
 			t.Fatalf("should be error for %v but not:", test.input)
 		}
-		if !reflect.DeepEqual(got, test.want) {
+		if !test.err && !reflect.DeepEqual(got, test.want) {
 			t.Fatalf("want %q, but %q:", test.want, got)
 		}
 	}
