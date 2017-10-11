@@ -160,7 +160,7 @@ func TestCryptex_Decrypt(t *testing.T) {
 		},
 	}
 	for _, test := range tests {
-		got, err := New(&testEncrypter{}).Decrypt(func(i interface{})*Container{
+		got, err := New(&testEncrypter{}).Decrypt(func(i interface{}) *Container {
 			if i == nil {
 				return nil
 			}
