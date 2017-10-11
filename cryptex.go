@@ -184,6 +184,9 @@ func (c *Cryptex) Encrypt(i interface{}) (*Container, error) {
 }
 
 func (c *Cryptex) Decrypt(d *Container) (interface{}, error) {
+	if d == nil {
+		return nil, errors.New("container is empty")
+	}
 	o, err := c.decrypt(d.Values)
 	if err != nil {
 		return nil, err
