@@ -9,3 +9,5 @@ import:
   - service/kms/kmsiface
 - package: github.com/ghodss/yaml
   version: ^1.0.0
+- package: github.com/ieee0824/getenv
+  version: ^0.2.0
