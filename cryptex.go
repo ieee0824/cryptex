@@ -5,12 +5,12 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/ghodss/yaml"
 	"github.com/ieee0824/cryptex/encryptor"
 	"io/ioutil"
 	"os"
 	"os/exec"
-	"fmt"
 )
 
 const (
