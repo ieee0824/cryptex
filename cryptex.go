@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/ghodss/yaml"
 	"github.com/ieee0824/cryptex/encryptor"
 	"io/ioutil"
@@ -196,6 +197,9 @@ func (c *Cryptex) Decrypt(d *Container) (interface{}, error) {
 }
 
 func (c *Cryptex) Edit(i *Container) (interface{}, error) {
+	if i == nil || i.Values == nil {
+		return nil, fmt.Errorf("container is empty")
+	}
 	p, err := c.decrypt(i.Values)
 	if err != nil {
 		return nil, err
