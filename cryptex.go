@@ -11,6 +11,7 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"strings"
 )
 
 const (
@@ -36,19 +37,24 @@ func SetEditor(e string) {
 	EDITOR = e
 }
 
-func getEditor() string {
+func parseEditorArgs(s string) (editor string, args []string) {
+	slice := strings.Split(s, " ")
+	return slice[0], slice[1:]
+}
+
+func getEditor() (editor string, args []string) {
 	if EDITOR != "" {
-		return EDITOR
+		return parseEditorArgs(EDITOR)
 	}
 	if e := os.Getenv("DEFAULT_EDITOR"); e != "" {
-		return e
+		return parseEditorArgs(e)
 	}
 
 	if e := os.Getenv("EDITOR"); e != "" {
-		return e
+		return parseEditorArgs(e)
 	}
 
-	return "nano"
+	return "nano", []string{}
 }
 
 func hasCommand(c string) error {
@@ -229,7 +235,9 @@ func (c *Cryptex) Edit(i *Container) (interface{}, error) {
 		return nil, err
 	}
 
-	cmd := exec.Command(getEditor(), file.Name())
+	editor, args := getEditor()
+	args = append(args, file.Name())
+	cmd := exec.Command(editor, args...)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
