@@ -2,7 +2,7 @@ version: 2
 jobs:
     build:
         docker:
-            - image: ieee0824/go-circleci-docker:1.9
+            - image: ieee0824/go-circleci-docker:1.9.1
         working_directory: /go/src/github.com/ieee0824/cryptex
         steps:
             - checkout
