@@ -1,10 +1,41 @@
 package kms
 
 import (
+	"encoding/json"
+
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/kms"
 	"github.com/aws/aws-sdk-go/service/kms/kmsiface"
 )
+
+func split(b []byte, n int) [][]byte {
+	size := len(b)
+	if b == nil {
+		return nil
+	}
+	if size == 0 {
+		return [][]byte{[]byte{}}
+	}
+	if size <= n {
+		return [][]byte{b}
+	}
+	var ret [][]byte
+	if size%n == 0 {
+		ret = make([][]byte, 0, size/n)
+	} else {
+		ret = make([][]byte, 0, size/n+1)
+	}
+
+	for i := 0; i < size; i += n {
+		end := i + n
+		if size < end {
+			end = size
+		}
+		ret = append(ret, b[i:end])
+	}
+
+	return ret
+}
 
 type KMS struct {
 	keyID *string
@@ -26,28 +57,42 @@ func (k *KMS) SetKey(key string) *KMS {
 }
 
 func (k *KMS) Encrypt(p []byte) ([]byte, error) {
-	params := &kms.EncryptInput{
-		KeyId:     k.keyID,
-		Plaintext: p,
+	var buffer [][]byte
+	for _, p := range split(p, 2048) {
+		params := &kms.EncryptInput{
+			KeyId:     k.keyID,
+			Plaintext: p,
+		}
+
+		resp, err := k.svc.Encrypt(params)
+		if err != nil {
+			return nil, err
+		}
+
+		buffer = append(buffer, resp.CiphertextBlob)
 	}
 
-	resp, err := k.svc.Encrypt(params)
-	if err != nil {
-		return nil, err
-	}
-
-	return resp.CiphertextBlob, nil
+	return json.Marshal(buffer)
 }
 
 func (k *KMS) Decrypt(c []byte) ([]byte, error) {
-	params := &kms.DecryptInput{
-		CiphertextBlob: c,
+	var buffer [][]byte
+	var ret []byte
+	if err := json.Unmarshal(c, &buffer); err != nil {
+		buffer = [][]byte{c}
 	}
 
-	resp, err := k.svc.Decrypt(params)
-	if err != nil {
-		return nil, err
+	for _, c := range buffer {
+		params := &kms.DecryptInput{
+			CiphertextBlob: c,
+		}
+
+		resp, err := k.svc.Decrypt(params)
+		if err != nil {
+			return nil, err
+		}
+		ret = append(ret, resp.Plaintext...)
 	}
 
-	return resp.Plaintext, nil
+	return ret, nil
 }
