@@ -79,6 +79,7 @@ func (k *KMS) Decrypt(c []byte) ([]byte, error) {
 	var buffer [][]byte
 	var ret []byte
 	if err := json.Unmarshal(c, &buffer); err != nil {
+		// Processing for backward compatibility.
 		buffer = [][]byte{c}
 	}
 
