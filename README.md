@@ -2,6 +2,9 @@
 Encrypt map, only value. Inspired leml.  
 - [leml - Encrypt secrets, only leaf.](https://github.com/onunu/leml)
 
+# support go version
+* 1.11.x and greater
+
 # Example
 
 ## Use KMS
