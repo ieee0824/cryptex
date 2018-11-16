@@ -2,14 +2,18 @@ version: 2
 jobs:
     build:
         docker:
-            - image: ieee0824/go-circleci-docker:1.9
+            - image: golang:latest
         working_directory: /go/src/github.com/ieee0824/cryptex
         steps:
             - checkout
             - run:
+                name: install dep
+                command: |
+                    go get -u github.com/golang/dep/cmd/dep
+            - run:
                 name: check fmt
                 command: |
-                    if [ $(go fmt $(glide nv) | wc -l) -eq 0 ]; then
+                    if [ $(go fmt ./... | wc -l) -eq 0 ]; then
                         exit 0
                     fi
                     echo "Go fmt is not applied."
@@ -17,8 +21,8 @@ jobs:
             - run:
                 name: install packages
                 command: |
-                    glide i
+                    dep ensure
             - run:
                 name: run test
                 command: |
-                    go test $(glide nv)
+                    go test ./...
