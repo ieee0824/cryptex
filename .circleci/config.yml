@@ -7,10 +7,6 @@ jobs:
         steps:
             - checkout
             - run:
-                name: install dep
-                command: |
-                    go get -u github.com/golang/dep/cmd/dep
-            - run:
                 name: check fmt
                 command: |
                     if [ $(go fmt ./... | wc -l) -eq 0 ]; then
@@ -18,10 +14,6 @@ jobs:
                     fi
                     echo "Go fmt is not applied."
                     exit 1
-            - run:
-                name: install packages
-                command: |
-                    dep ensure
             - run:
                 name: run test
                 command: |
