@@ -3,6 +3,8 @@ jobs:
     build:
         docker:
             - image: golang:latest
+        environment:
+            GO111MODULE: on
         working_directory: /go/src/github.com/ieee0824/cryptex
         steps:
             - checkout
